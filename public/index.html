@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Interview Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#080808;--white:#f8f7f4;--cream:#f0ede6;--gold:#c9a84c;--grey:#9a9a94;--grey-dark:#4a4a44;--grey-border:#ddddd8;--green:#0f5132;--green-light:#1a7a4a}
+html{scroll-behavior:smooth}body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black);line-height:1.6;overflow-x:hidden}
+.page{display:none;min-height:100vh;flex-direction:column}.page.active{display:flex}
+.progress-bar{position:fixed;top:0;left:0;width:100%;height:3px;background:var(--grey-border);z-index:999}
+.progress-fill{height:100%;background:var(--gold);transition:width 0.5s ease}
+nav{display:flex;justify-content:space-between;align-items:center;padding:24px 80px;border-bottom:1px solid var(--grey-border);background:var(--white);position:sticky;top:3px;z-index:100}
+.nav-logo{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--black);cursor:pointer}.nav-logo span{color:var(--gold)}
+.nav-step{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--grey)}
+.nav-cta{background:var(--black);color:var(--white);border:none;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.2s}
+.nav-cta:hover{background:var(--gold);color:var(--black)}
+#page-landing{background:var(--white)}
+.hero{padding:120px 80px 100px;text-align:center;border-bottom:1px solid var(--grey-border);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,0.07) 0%,transparent 65%);pointer-events:none}
+.hero-headline{font-family:'Playfair Display',serif;font-size:clamp(56px,8vw,108px);font-weight:900;line-height:1.0;letter-spacing:-0.04em;color:var(--black)}
+.hero-headline-italic{font-family:'Playfair Display',serif;font-size:clamp(56px,8vw,108px);font-weight:700;font-style:italic;line-height:1.0;letter-spacing:-0.04em;color:var(--grey);display:block;margin-bottom:48px}
+.hero-sub{font-size:18px;font-weight:300;color:var(--grey-dark);max-width:580px;margin:0 auto 56px;line-height:1.75}
+.btn-primary{display:inline-flex;align-items:center;gap:14px;background:var(--black);color:var(--white);border:none;padding:22px 48px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.25s}
+.btn-primary:hover{background:var(--gold);color:var(--black)}.btn-primary svg{transition:transform 0.2s}.btn-primary:hover svg{transform:translateX(5px)}
+.hero-proof{display:flex;align-items:center;justify-content:center;gap:32px;margin-top:48px;flex-wrap:wrap}
+.proof-item{font-size:12px;font-weight:400;color:var(--grey);display:flex;align-items:center;gap:7px}
+.proof-dot{width:4px;height:4px;background:var(--gold);border-radius:50%}
+.section-why{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--grey-border)}
+.why-item{background:var(--black);padding:48px 40px;border-right:1px solid rgba(255,255,255,0.06)}.why-item:last-child{border-right:none}
+.why-icon{width:32px;height:32px;border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:20px}.why-icon svg{width:14px;height:14px}
+.why-title{font-size:13px;font-weight:600;color:var(--white);margin-bottom:8px}.why-desc{font-size:13px;font-weight:300;color:rgba(255,255,255,0.75);line-height:1.6}
+.section-fix{background:var(--black);padding:80px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;border-bottom:1px solid var(--grey-border)}
+.fix-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.fix-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold)}
+.fix-headline{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;color:var(--white);line-height:1.1;letter-spacing:-0.03em;margin-bottom:24px}
+.fix-sub{font-size:15px;font-weight:300;color:rgba(255,255,255,0.8);line-height:1.75;max-width:420px}
+.fix-step{display:flex;gap:24px;align-items:flex-start;padding:28px 0;border-bottom:1px solid rgba(255,255,255,0.06)}.fix-step:first-child{border-top:1px solid rgba(255,255,255,0.06)}
+.fix-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--gold);opacity:0.4;line-height:1;min-width:40px}
+.fix-text strong{font-size:14px;font-weight:600;color:var(--white);display:block;margin-bottom:4px}.fix-text span{font-size:13px;font-weight:300;color:rgba(255,255,255,0.75);line-height:1.5}
+.section-pricing{padding:80px;background:var(--white);border-bottom:1px solid var(--grey-border)}
+.pricing-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--black);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.pricing-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold)}
+.pricing-headline{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px}
+.pricing-sub{font-size:15px;color:var(--grey);font-weight:300;margin-bottom:48px}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--grey-border)}
+.pricing-col{background:var(--white);padding:40px}.pricing-col.pro{background:var(--black)}
+.pricing-col-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px}
+.pricing-col-label.free{color:var(--grey)}.pricing-col-label.pro{color:var(--gold)}
+.pricing-col-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;margin-bottom:4px}
+.pricing-col-title.free{color:var(--black)}.pricing-col-title.pro{color:var(--white)}
+.pricing-col-price{font-size:13px;font-weight:400;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--grey-border)}
+.pricing-col-price.free{color:var(--grey)}.pricing-col-price.pro{color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.1)}
+.pricing-feature{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:14px;font-weight:300}
+.pricing-feature.free{color:var(--grey-dark)}.pricing-feature.pro{color:rgba(255,255,255,0.8)}.pricing-feature.locked{color:var(--grey-border)}
+.feat-check{width:16px;height:16px;flex-shrink:0}.pricing-cta{margin-top:28px}
+.btn-pro{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--black);border:none;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;width:100%;justify-content:center}
+.btn-pro:hover{background:var(--white)}
+.btn-free{display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--black);border:1px solid var(--grey-border);padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;width:100%;justify-content:center}
+.btn-free:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+.section-cta{padding:80px;text-align:center;background:var(--cream)}
+.cta-headline{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-0.03em;margin-bottom:16px}
+.cta-sub{font-size:15px;color:var(--grey-dark);font-weight:400;margin-bottom:40px}
+#page-input{background:var(--white)}
+.input-wrap{flex:1;max-width:720px;margin:0 auto;padding:32px 32px 80px;width:100%}
+.page-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--black);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.page-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold)}
+.page-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:10px}
+.page-sub{font-size:15px;color:var(--grey-dark);font-weight:400;margin-bottom:48px}
+.field-label{display:block;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--black);margin-bottom:10px}
+.field-input{width:100%;padding:15px 18px;border:1px solid var(--grey-border);background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--black);outline:none;transition:border-color 0.2s;border-radius:0;appearance:none}
+.field-input:focus{border-color:var(--black)}.field-input::placeholder{color:var(--grey-border)}
+.field-textarea{resize:vertical;min-height:110px;line-height:1.65}
+.privacy-note{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey-dark);font-weight:400;margin-top:10px}
+.btn-gen{display:none;margin-top:16px;background:var(--black);color:var(--white);border:none;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.btn-gen:hover{background:var(--gold);color:var(--black)}
+.q-block{display:none;margin-top:40px}.q-block.show{display:block}
+.q-card{border:1px solid var(--grey-border);margin-bottom:28px;overflow:hidden}
+.q-card-head{background:var(--black);padding:14px 22px;display:flex;align-items:flex-start;gap:14px;flex-direction:column}
+.q-num{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold)}
+.q-text{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);line-height:1.4}
+.q-card-body{padding:22px}
+.divider{border:none;border-top:1px solid var(--grey-border);margin:40px 0}
+.submit-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.submit-note{font-size:11px;color:var(--grey);font-weight:300;max-width:280px;line-height:1.6}
+.error-msg{background:#fff0f0;border-left:3px solid #cc0000;padding:14px 16px;font-size:13px;color:#cc0000;margin-top:16px;display:none}
+#page-loading{background:var(--white);align-items:center;justify-content:center}
+.loading-wrap{text-align:center;padding:60px}
+.loading-ring{width:52px;height:52px;border:2px solid var(--grey-border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 32px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;margin-bottom:8px;letter-spacing:-0.02em}
+.loading-sub{font-size:14px;color:var(--grey);font-weight:300}
+#page-results{background:var(--cream)}
+.results-hero{background:var(--black);padding:52px 80px}
+.results-tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.r-tag{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border:1px solid rgba(201,168,76,0.35);color:var(--gold);padding:5px 13px}
+.results-title{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;letter-spacing:-0.03em;color:var(--white);margin-bottom:8px}
+.results-sub{font-size:13px;color:rgba(255,255,255,0.35);font-weight:300}
+.results-body{max-width:820px;margin:0 auto;padding:48px 32px 64px}
+.a-card{background:var(--white);border:1px solid var(--grey-border);margin-bottom:20px;opacity:0;transform:translateY(20px);animation:fadeUp 0.45s ease forwards}
+.a-card:nth-child(1){animation-delay:0.1s}.a-card:nth-child(2){animation-delay:0.22s}.a-card:nth-child(3){animation-delay:0.34s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.a-card-head{background:var(--cream);border-bottom:1px solid var(--grey-border);padding:16px 26px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.a-num{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--grey-dark)}
+.a-question{font-size:13px;font-weight:600;color:var(--black);max-width:500px;margin-top:4px}
+.badge{font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;padding:5px 13px;flex-shrink:0}
+.badge-issue{background:var(--black);color:var(--white)}.badge-none{background:var(--green);color:var(--white)}
+.a-card-body{padding:28px 26px}.a-section{margin-bottom:22px}.a-section:last-child{margin-bottom:0}
+.a-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--black);margin-bottom:9px}
+.a-content{font-size:14px;font-weight:300;color:var(--black);line-height:1.75}
+.a-content.original{color:var(--grey-dark);font-style:italic;border-left:2px solid var(--grey-border);padding-left:15px}
+.a-content.hurts{background:#fffbf2;border-left:3px solid var(--gold);padding:14px 16px;color:var(--grey-dark)}
+.a-content.revised{background:#e8f5ee;border-left:3px solid var(--green);padding:14px 16px;font-weight:400;color:var(--black)}
+.a-content.strong{background:#e8f5ee;border-left:3px solid var(--green);padding:14px 16px;color:var(--black);font-weight:400}
+.closing-card{background:var(--black);padding:48px;margin-bottom:20px;opacity:0;animation:fadeUp 0.45s ease 0.46s forwards}
+.closing-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.closing-eyebrow::before{content:'';width:18px;height:1px;background:var(--gold)}
+.closing-headline{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--white);line-height:1.45;margin-bottom:24px}
+.closing-execute{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:12px}
+.closing-sig{font-size:13px;font-weight:600;color:var(--gold);margin-bottom:36px;letter-spacing:0.04em}
+.btn-download{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--black);border:none;padding:16px 28px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.btn-download:hover{background:var(--white)}
+.pro-note{font-size:11px;color:rgba(255,255,255,0.5);font-weight:400;margin-top:12px;display:flex;align-items:center;gap:6px}
+.pro-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:var(--gold);color:var(--black);padding:3px 8px}
+.disclaimer-box{background:var(--black);border:1px solid rgba(255,255,255,0.08);padding:32px;opacity:0;animation:fadeUp 0.45s ease 0.58s forwards}
+.disclaimer-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.disclaimer-label::before{content:'';width:16px;height:1px;background:var(--gold)}
+.disclaimer-text{font-size:12px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.8}
+@media(max-width:900px){nav{padding:18px 24px}.nav-step{display:none}.hero{padding:72px 24px 64px}.section-why{grid-template-columns:1fr 1fr}.section-fix{grid-template-columns:1fr;padding:48px 24px;gap:40px}.section-pricing{padding:48px 24px}.pricing-grid{grid-template-columns:1fr}.section-cta{padding:48px 24px}.results-hero{padding:36px 24px}.results-body{padding:32px 20px}.closing-card{padding:32px 24px}.submit-row{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+<div id="page-landing" class="page active">
+  <nav><span class="nav-logo" onclick="goTo('page-landing')">AI Interview<span>Coach</span></span><span class="nav-step">The Edge You Need</span><button class="nav-cta" onclick="goTo('page-input')">Start Free Session</button></nav>
+  <div class="hero">
+    <h1 class="hero-headline">You're qualified.</h1>
+    <span class="hero-headline-italic">Now sound like it.</span>
+    <p class="hero-sub">Most candidates lose interviews not because they lack experience — but because they can't communicate it with confidence. We fix that.</p>
+    <button class="btn-primary" onclick="goTo('page-input')">Start Your Free Session<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <div class="hero-proof">
+      <div class="proof-item"><span class="proof-dot"></span>3 Questions Per Session</div>
+      <div class="proof-item"><span class="proof-dot"></span>100% Rewritten For You</div>
+      <div class="proof-item"><span class="proof-dot"></span>No Data Stored</div>
+      <div class="proof-item"><span class="proof-dot"></span>Works for Any Industry</div>
+      <div class="proof-item"><span class="proof-dot"></span>Built for Career Switchers</div>
+    </div>
+  </div>
+  <div class="section-why">
+    <div class="why-item"><div class="why-icon"><svg fill="none" stroke="#c9a84c" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div class="why-title">Leading With Weakness</div><div class="why-desc">Opening with doubt or gaps destroys first impressions before you ever make your case.</div></div>
+    <div class="why-item"><div class="why-icon"><svg fill="none" stroke="#c9a84c" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div class="why-title">Hedging Language</div><div class="why-desc">"I think" and "I believe" signal uncertainty even when your actual experience is strong.</div></div>
+    <div class="why-item"><div class="why-icon"><svg fill="none" stroke="#c9a84c" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div class="why-title">Overexplaining</div><div class="why-desc">Rambling buries your strongest points and signals poor communication under pressure.</div></div>
+    <div class="why-item"><div class="why-icon"><svg fill="none" stroke="#c9a84c" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div class="why-title">Passive Framing</div><div class="why-desc">Describing what happened instead of what you drove makes strong candidates sound weak.</div></div>
+  </div>
+  <div class="section-fix">
+    <div class="fix-left"><div class="fix-eyebrow">The Fix</div><div class="fix-headline">We identify your one biggest issue. Then we rewrite your answer into exactly what confident candidates say.</div><p class="fix-sub">No generic advice. No surface level tips. Just a structured feedback report and a fully rewritten answer — tailored to your exact role.</p></div>
+    <div class="fix-right">
+      <div class="fix-step"><div class="fix-num">01</div><div class="fix-text"><strong>Enter Your Job Title</strong><span>We generate your 3 interview questions automatically. No searching required.</span></div></div>
+      <div class="fix-step"><div class="fix-num">02</div><div class="fix-text"><strong>Answer Naturally</strong><span>Write the way you'd actually speak in a real interview. Don't overthink it.</span></div></div>
+      <div class="fix-step"><div class="fix-num">03</div><div class="fix-text"><strong>Get Your Report</strong><span>Receive your issue, why it hurts you, and a fully rewritten confident answer.</span></div></div>
+    </div>
+  </div>
+  <div class="section-pricing">
+    <div class="pricing-eyebrow">Pricing</div>
+    <div class="pricing-headline">Free to start. Pro to finish.</div>
+    <p class="pricing-sub">Try it free. Upgrade when you're ready to go all in.</p>
+    <div class="pricing-grid">
+      <div class="pricing-col">
+        <div class="pricing-col-label free">Free</div><div class="pricing-col-title free">Get Started</div><div class="pricing-col-price free">No credit card required</div>
+        <div class="pricing-feature free"><svg class="feat-check" fill="none" stroke="#1a7a4a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>1 interview question per session</div>
+        <div class="pricing-feature free"><svg class="feat-check" fill="none" stroke="#1a7a4a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>1 rewrite per answer</div>
+        <div class="pricing-feature free"><svg class="feat-check" fill="none" stroke="#1a7a4a" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Issue identification</div>
+        <div class="pricing-feature locked"><svg class="feat-check" fill="none" stroke="#ddddd8" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Full 3-question report</div>
+        <div class="pricing-feature locked"><svg class="feat-check" fill="none" stroke="#ddddd8" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>PDF download</div>
+        <div class="pricing-feature locked"><svg class="feat-check" fill="none" stroke="#ddddd8" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Unlimited rewrites</div>
+        <div class="pricing-cta"><button class="btn-free" onclick="goTo('page-input')">Start Free →</button></div>
+      </div>
+      <div class="pricing-col pro">
+        <div class="pricing-col-label pro">Pro</div><div class="pricing-col-title pro">Go All In</div><div class="pricing-col-price pro">Pricing coming soon</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Full 3-question report</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Unlimited rewrites per answer</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Downloadable PDF report</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Role-specific feedback</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Works for any industry</div>
+        <div class="pricing-feature pro"><svg class="feat-check" fill="none" stroke="#c9a84c" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>More features coming soon</div>
+        <div class="pricing-cta"><button class="btn-pro">Coming Soon</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="section-cta">
+    <div class="cta-headline">Stop losing interviews you should be winning.</div>
+    <div class="cta-sub">Less than 5 minutes. Built for career switchers. Your next interview starts now.</div>
+    <button class="btn-primary" onclick="goTo('page-input')">Start Your Free Session<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+</div>
+<div id="page-input" class="page">
+  <nav><span class="nav-logo" onclick="goTo('page-landing')">AI Interview<span>Coach</span></span><span class="nav-step">Step 1 of 2 — Your Answers</span><button class="nav-cta" onclick="goTo('page-landing')">← Back</button></nav>
+  <div class="input-wrap">
+    <div class="page-eyebrow">Let's Get To Work</div>
+    <h2 class="page-title">Your answers are about to get a lot stronger.</h2>
+    <p class="page-sub">Type your job title below. We generate your questions. You answer. We fix what's holding you back.</p>
+    <div style="margin-bottom:32px">
+      <label class="field-label" for="job-title">Job Title You're Interviewing For</label>
+      <input class="field-input" id="job-title" type="text" placeholder="e.g. Safety Inspector, Marketing Manager, Registered Nurse..." oninput="handleTitle(this.value)"/>
+      <div class="privacy-note"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Your answers are never stored or retained after this session ends.</div>
+      <button class="btn-gen" id="btn-gen" onclick="generateQs()">Generate My Questions →</button>
+    </div>
+    <div class="q-block" id="q-block">
+      <div class="divider"></div>
+      <div class="q-card"><div class="q-card-head"><span class="q-num">Question 01</span><div class="q-text" id="q1t"></div></div><div class="q-card-body"><label class="field-label">Your Answer</label><textarea class="field-input field-textarea" id="a1" placeholder="Write naturally — the way you'd say it in a real interview."></textarea></div></div>
+      <div class="q-card"><div class="q-card-head"><span class="q-num">Question 02</span><div class="q-text" id="q2t"></div></div><div class="q-card-body"><label class="field-label">Your Answer</label><textarea class="field-input field-textarea" id="a2" placeholder="Write naturally..."></textarea></div></div>
+      <div class="q-card"><div class="q-card-head"><span class="q-num">Question 03</span><div class="q-text" id="q3t"></div></div><div class="q-card-body"><label class="field-label">Your Answer</label><textarea class="field-input field-textarea" id="a3" placeholder="Write naturally..."></textarea></div></div>
+      <div class="divider"></div>
+      <div class="submit-row">
+        <p class="submit-note">Your answers are not stored or retained after this session ends.</p>
+        <button class="btn-primary" onclick="submitAnswers()">Analyze My Answers<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="error-msg" id="error-msg">Something went wrong. Please try again in a moment.</div>
+    </div>
+  </div>
+</div>
+<div id="page-loading" class="page">
+  <nav><span class="nav-logo">AI Interview<span>Coach</span></span></nav>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--white)"><div class="loading-wrap"><div class="loading-ring"></div><div class="loading-title">Analyzing your answers.</div><div class="loading-sub">Identifying what's holding you back — and how to fix it.</div></div></div>
+</div>
+<div id="page-results" class="page">
+  <nav><span class="nav-logo" onclick="goTo('page-landing')">AI Interview<span>Coach</span></span><span class="nav-step">Step 2 of 2 — Your Report</span><button class="nav-cta" onclick="resetSession()">New Session</button></nav>
+  <div class="results-hero">
+    <div class="results-tags"><span class="r-tag">Session Complete</span><span class="r-tag" id="r-job"></span><span class="r-tag" id="r-date"></span></div>
+    <div class="results-title">Your Feedback Report</div>
+    <div class="results-sub">3 answers analyzed · Issues identified · Responses rewritten</div>
+  </div>
+  <div class="results-body">
+    <div id="r-cards"></div>
+    <div class="closing-card">
+      <div class="closing-eyebrow">Your Session Is Complete</div>
+      <div class="closing-headline" id="closing-msg">You came in with raw answers. You're leaving with a sharper version of yourself.</div>
+      <div class="closing-execute">You've done the work. Now go execute.</div>
+      <div class="closing-sig">— AI Interview Coach</div>
+      <button class="btn-download" onclick="alert('PDF download available in Pro version. Coming soon.')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Download PDF Report</button>
+      <div class="pro-note"><span class="pro-badge">Pro</span>PDF download is a Pro feature — coming soon.</div>
+    </div>
+    <div class="disclaimer-box">
+      <div class="disclaimer-label">Disclaimer</div>
+      <div class="disclaimer-text">AI Interview Coach is a communication development tool designed to help you present your experience and skills more effectively. This platform does not guarantee job placement, interview success, or employment outcomes. Results depend on many factors outside the scope of this tool including employer requirements, market conditions, and individual circumstances. Your answers are not stored or retained after this session ends. Use this feedback as a resource to strengthen your communication — the rest is yours to own.</div>
+    </div>
+  </div>
+</div>
+<script>
+const QB={trade:{kw:['safety','inspector','electrician','plumber','construction','contractor','maintenance','welder','hvac','mechanic','carpenter','roofer'],q:["Tell me about yourself and your experience in this trade.","Describe a time you identified a serious safety hazard on a job site. What did you do?","How do you handle a situation where a coworker is cutting corners on safety or quality?"]},corporate:{kw:['marketing','sales','finance','hr','human resources','manager','analyst','operations','project','business','account','director','coordinator','executive','strategy'],q:["Tell me about yourself and your professional background.","Describe a time you led a project or initiative from start to finish. What was the outcome?","How do you handle competing priorities and tight deadlines?"]},healthcare:{kw:['nurse','medical','caregiver','pharmacy','health','cna','dental','clinical','patient','therapist','aide','physician','lab','hospital'],q:["Tell me about yourself and your background in healthcare.","Describe a time you had to handle a difficult or distressed patient. How did you manage it?","How do you prioritize tasks when you have multiple patients at the same time?"]},tech:{kw:['software','engineer','developer','data','qa','systems','ux','devops','programmer','network','security','cloud','database'],q:["Tell me about yourself and your technical background.","Describe a technically complex problem you solved. Walk me through your process.","How do you handle a situation where you don't know the answer to a technical problem?"]},education:{kw:['teacher','substitute','counselor','academic','coach','tutor','instructor','professor','school','principal','curriculum','faculty'],q:["Tell me about yourself and your background in education.","Describe a time you had a struggling student or difficult classroom situation.","How do you adapt your teaching style for different learning needs?"]},retail:{kw:['customer service','retail','hospitality','food service','hotel','barista','server','cashier','associate','clerk','receptionist','front desk'],q:["Tell me about yourself and your experience in customer service.","Describe a time you dealt with a difficult or upset customer. How did you handle it?","How do you stay positive and productive during a high-pressure shift?"]},general:{q:["Tell me about yourself and your professional background.","Why do you want this position and why are you the right candidate?","Describe a difficult situation you faced at work and how you handled it."]}};
+let jobTitle='',questions=[];
+function goTo(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);const map={'page-landing':'0%','page-input':'40%','page-loading':'70%','page-results':'100%'};document.getElementById('progress').style.width=map[id]||'0%';}
+function handleTitle(v){jobTitle=v.trim();document.getElementById('btn-gen').style.display=jobTitle.length>2?'inline-block':'none';}
+function getCategory(t){const low=t.toLowerCase();for(const[k,v]of Object.entries(QB)){if(k==='general')continue;if(v.kw&&v.kw.some(kw=>low.includes(kw)))return v;}return QB.general;}
+function generateQs(){const cat=getCategory(jobTitle);questions=cat.q.slice(0,3);document.getElementById('q1t').textContent=questions[0];document.getElementById('q2t').textContent=questions[1];document.getElementById('q3t').textContent=questions[2]||questions[0];const b=document.getElementById('q-block');b.classList.add('show');b.scrollIntoView({behavior:'smooth',block:'start'});}
+async function submitAnswers(){
+  const a1=document.getElementById('a1').value.trim(),a2=document.getElementById('a2').value.trim(),a3=document.getElementById('a3').value.trim();
+  if(!a1||!a2||!a3){alert('Please answer all 3 questions before submitting.');return;}
+  document.getElementById('error-msg').style.display='none';
+  goTo('page-loading');
+  try{
+    const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobTitle,answers:[a1,a2,a3],questions})});
+    if(!res.ok)throw new Error('API error');
+    const data=await res.json();
+    renderResults(data.result);
+    goTo('page-results');
+  }catch(err){console.error(err);goTo('page-input');document.getElementById('error-msg').style.display='block';}
+}
+function renderResults(text){
+  document.getElementById('r-job').textContent=jobTitle||'General';
+  document.getElementById('r-date').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const container=document.getElementById('r-cards');container.innerHTML='';
+  const blocks=text.split(/ANSWER\s+[123]/i).filter(b=>b.trim().length>0);
+  blocks.slice(0,3).forEach((block,i)=>{
+    const rM=block.match(/Response:\s*([\s\S]*?)(?=Issue Identified:|$)/i);
+    const iM=block.match(/Issue Identified:\s*([\s\S]*?)(?=Why This Hurts You:|Revised Answer:|$)/i);
+    const wM=block.match(/Why This Hurts You:\s*([\s\S]*?)(?=Revised Answer:|$)/i);
+    const rvM=block.match(/Revised Answer:\s*([\s\S]*?)(?=\n\n[A-Z]|$)/i);
+    const original=rM?rM[1].trim():'';const issue=iM?iM[1].trim():'None';
+    const why=wM?wM[1].trim():'';const revised=rvM?rvM[1].trim():'';
+    const isNone=issue.toLowerCase().includes('none');
+    container.innerHTML+=`<div class="a-card"><div class="a-card-head"><div><div class="a-num">Answer ${i+1} of 3</div><div class="a-question">${questions[i]||questions[0]}</div></div><div class="badge ${isNone?'badge-none':'badge-issue'}">${isNone?'✓ No Issues':issue}</div></div><div class="a-card-body"><div class="a-section"><div class="a-label">Your Response</div><div class="a-content original">${original}</div></div>${!isNone?`<div class="a-section"><div class="a-label">Why This Hurts You</div><div class="a-content hurts">${why}</div></div><div class="a-section"><div class="a-label">Revised Answer</div><div class="a-content revised">${revised}</div></div>`:`<div class="a-section"><div class="a-label">Assessment</div><div class="a-content strong">No changes needed. This answer is clear, confident, and well-framed for the role. Deliver it exactly this way in your interview.</div></div>`}</div></div>`;
+  });
+  const cM=text.match(/Here is your focus[^:]*:\s*([\s\S]*?)(?=You've done the work|$)/i);
+  if(cM)document.getElementById('closing-msg').textContent=cM[1].trim();
+}
+function resetSession(){document.getElementById('a1').value='';document.getElementById('a2').value='';document.getElementById('a3').value='';document.getElementById('job-title').value='';document.getElementById('q-block').classList.remove('show');document.getElementById('btn-gen').style.display='none';jobTitle='';questions=[];goTo('page-input');}
+</script>
+</body>
+</html>
