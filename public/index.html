@@ -260,10 +260,12 @@ async function submitAnswers(){
   if(!a1||!a2||!a3){alert('Please answer all 3 questions before submitting.');return;}
   document.getElementById('error-msg').style.display='none';
   goTo('page-loading');
+  const safeQuestions=questions&&questions.length===3?questions:['Tell me about yourself.','Describe a challenge you faced at work.','Why do you want this position?'];
   try{
-    const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobTitle,answers:[a1,a2,a3],questions})});
-    if(!res.ok)throw new Error('API error');
+    const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobTitle:jobTitle,answers:[a1,a2,a3],questions:safeQuestions})});
+    if(!res.ok){const errData=await res.json();throw new Error(errData.error||'API error');}
     const data=await res.json();
+    if(!data.result)throw new Error('No result');
     renderResults(data.result);
     goTo('page-results');
   }catch(err){console.error(err);goTo('page-input');document.getElementById('error-msg').style.display='block';}
