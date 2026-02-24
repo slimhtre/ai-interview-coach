@@ -5,9 +5,13 @@ export default async function handler(req, res) {
 
   const { jobTitle, answers, questions } = req.body;
 
-  if (!jobTitle || !answers || !questions) {
+  if (!jobTitle || !answers) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  const safeQuestions = questions && questions.length === 3 
+    ? questions 
+    : ['Tell me about yourself.', 'Describe a challenge you faced at work.', 'Why do you want this position?'];
 
   const SYSTEM_PROMPT = `You are AI Interview Coach — a world-class structured communication feedback engine.
 
@@ -76,15 +80,15 @@ NORTH STAR: Every output must answer — Did this candidate just get closer to g
   const userMessage = `Job Title: ${jobTitle}
 
 ANSWER 1
-Question: ${questions[0]}
+Question: ${safeQuestions[0]}
 Answer: ${answers[0]}
 
 ANSWER 2
-Question: ${questions[1]}
+Question: ${safeQuestions[1]}
 Answer: ${answers[1]}
 
 ANSWER 3
-Question: ${questions[2]}
+Question: ${safeQuestions[2]}
 Answer: ${answers[2]}
 
 Please analyze all 3 answers and provide the full feedback report in the exact format specified.`;
