@@ -1,16 +1,23 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+exports.handler = async function(event, context) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  const { jobTitle, answers, questions } = req.body;
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch(e) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
+  }
+
+  const { jobTitle, answers, questions } = body;
 
   if (!jobTitle || !answers) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
-  const safeQuestions = questions && questions.length === 3 
-    ? questions 
+  const safeQuestions = questions && questions.length === 3
+    ? questions
     : ['Tell me about yourself.', 'Describe a challenge you faced at work.', 'Why do you want this position?'];
 
   const SYSTEM_PROMPT = `You are AI Interview Coach — a world-class structured communication feedback engine.
@@ -111,14 +118,24 @@ Please analyze all 3 answers and provide the full feedback report in the exact f
 
     if (!response.ok) {
       const error = await response.json();
-      return res.status(response.status).json({ error: error.error?.message || 'API error' });
+      return {
+        statusCode: response.status,
+        body: JSON.stringify({ error: error.error?.message || 'API error' })
+      };
     }
 
     const data = await response.json();
-    return res.status(200).json({ result: data.content[0].text });
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ result: data.content[0].text })
+    };
 
   } catch (err) {
     console.error('Error:', err);
-    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Something went wrong. Please try again.' })
+    };
   }
-}
+};
